@@ -38,3 +38,8 @@ Aplikasi ini dibuat untuk mempelajari dasar-dasar antarmuka (UI) pada Flutter, m
 
 ## Pertemuan 3
 Aplikasi ini dibuat untuk mempelajari navigasi antar halaman (routes) pada Flutter, meliputi pembuatan halaman login dengan validasi sederhana, penyimpanan username menggunakan local storage (shared_preferences), halaman beranda yang menampilkan username yang tersimpan, serta side menu (Drawer) untuk berpindah ke halaman Home dan About.
+
+---
+
+## Pertemuan 4
+Aplikasi ini dibuat untuk mempelajari integrasi Flutter dengan REST API (	oko-api CodeIgniter) menggunakan package http, meliputi pembuatan helper koneksi API (pi.dart dan pi_url.dart), model data (RegistrasiModel, LoginModel, ProdukModel), lapisan bisnis (RegistrasiBloc, LoginBloc, ProdukBloc), serta antarmuka lengkap untuk Registrasi, Login, Logout, dan operasi CRUD Produk (List Produk, Tambah Produk, Detail Produk, Ubah Produk, dan Hapus Produk).
