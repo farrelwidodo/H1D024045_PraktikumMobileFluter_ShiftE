@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import '../blocs/login_bloc.dart';
-import 'registrasi_page.dart';
-import 'produk_page.dart';
+import 'package:tokokita/blocs/login_bloc.dart';
+import 'package:tokokita/helpers/user_info.dart';
+import 'package:tokokita/ui/produk_page.dart';
+import 'package:tokokita/ui/registrasi_page.dart';
+import 'package:tokokita/widget/warning_dialog.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -92,6 +94,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _submit() {
+    _formkey.currentState!.save();
     setState(() {
       isLoading = true;
     });
@@ -99,42 +102,42 @@ class _LoginPageState extends State<LoginPage> {
       email: _emailTextboxController.text,
       password: _passwordTextboxController.text,
     ).then((value) async {
-      if (value.status == true) {
-        // Jika login berhasil, pindah ke halaman Produk
+      if (value.code == 200 || value.status == true) {
+        if (value.data?.token != null) {
+          await UserInfo().setToken(value.data!.token.toString());
+        }
+        if (value.data?.user?.id != null) {
+          final parsedId = int.tryParse(value.data!.user!.id.toString());
+          if (parsedId != null) {
+            await UserInfo().setUserID(parsedId);
+          }
+        }
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const ProdukPage()),
         );
       } else {
+        if (!mounted) return;
         showDialog(
           context: context,
-          builder: (BuildContext context) => AlertDialog(
-            title: const Text("Gagal Login"),
-            content: const Text("Email atau password salah"),
-            actions: [
-              TextButton(
-                child: const Text("OK"),
-                onPressed: () => Navigator.pop(context),
-              )
-            ],
+          barrierDismissible: false,
+          builder: (BuildContext context) => const WarningDialog(
+            description: "Login gagal, silahkan coba lagi",
           ),
         );
       }
-    }).catchError((error) {
+    }, onError: (error) {
+      if (!mounted) return;
       showDialog(
         context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text("Gagal"),
-          content: Text("Terjadi kesalahan: $error"),
-          actions: [
-            TextButton(
-              child: const Text("OK"),
-              onPressed: () => Navigator.pop(context),
-            )
-          ],
+        barrierDismissible: false,
+        builder: (BuildContext context) => const WarningDialog(
+          description: "Login gagal, silahkan coba lagi",
         ),
       );
     }).whenComplete(() {
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });
@@ -146,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
     return Center(
       child: InkWell(
         child: const Text(
-          "Belum punya akun? Registrasi",
+          "Registrasi",
           style: TextStyle(color: Colors.blue),
         ),
         onTap: () {
@@ -159,4 +162,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-

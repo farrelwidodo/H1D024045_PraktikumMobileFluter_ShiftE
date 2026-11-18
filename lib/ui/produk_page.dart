@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import '../blocs/produk_bloc.dart';
-import '../models/produk.model.dart';
-import 'login_page.dart';
-import 'produk_detail.dart';
-import 'produk_form.dart';
+import 'package:tokokita/blocs/logout_bloc.dart';
+import 'package:tokokita/blocs/produk_bloc.dart';
+import 'package:tokokita/models/produk.model.dart';
+import 'package:tokokita/ui/login_page.dart';
+import 'package:tokokita/ui/produk_detail.dart';
+import 'package:tokokita/ui/produk_form.dart';
 
 class ProdukPage extends StatefulWidget {
-  const ProdukPage({Key? key}) : super(key: key);
+  const ProdukPage({super.key});
 
   @override
-  _ProdukPageState createState() => _ProdukPageState();
+  State<ProdukPage> createState() => _ProdukPageState();
 }
 
 class _ProdukPageState extends State<ProdukPage> {
@@ -40,10 +41,13 @@ class _ProdukPageState extends State<ProdukPage> {
               title: const Text('Logout'),
               trailing: const Icon(Icons.logout),
               onTap: () async {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                );
+                await LogoutBloc.logout().then((value) {
+                  if (!context.mounted) return;
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    (route) => false,
+                  );
+                });
               },
             )
           ],
@@ -52,7 +56,9 @@ class _ProdukPageState extends State<ProdukPage> {
       body: FutureBuilder<List<ProdukData>>(
         future: ProdukBloc.getProduk(),
         builder: (context, snapshot) {
-          if (snapshot.hasError) print(snapshot.error);
+          if (snapshot.hasError) {
+            debugPrint(snapshot.error.toString());
+          }
           return snapshot.hasData
               ? ListProduk(
                   list: snapshot.data,
@@ -69,7 +75,7 @@ class _ProdukPageState extends State<ProdukPage> {
 class ListProduk extends StatelessWidget {
   final List<ProdukData>? list;
 
-  const ListProduk({Key? key, this.list}) : super(key: key);
+  const ListProduk({super.key, this.list});
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +93,7 @@ class ListProduk extends StatelessWidget {
 class ItemProduk extends StatelessWidget {
   final ProdukData produk;
 
-  const ItemProduk({Key? key, required this.produk}) : super(key: key);
+  const ItemProduk({super.key, required this.produk});
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +111,7 @@ class ItemProduk extends StatelessWidget {
       child: Card(
         child: ListTile(
           title: Text(produk.namaProduk ?? ''),
-          subtitle: Text('Rp. ${produk.harga ?? ''}'),
+          subtitle: Text(produk.harga ?? ''),
         ),
       ),
     );

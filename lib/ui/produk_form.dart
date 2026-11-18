@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import '../blocs/produk_bloc.dart';
-import '../models/produk.model.dart';
-import 'produk_page.dart';
+import 'package:tokokita/blocs/produk_bloc.dart';
+import 'package:tokokita/models/produk.model.dart';
+import 'package:tokokita/ui/produk_page.dart';
+import 'package:tokokita/widget/warning_dialog.dart';
 
 class ProdukForm extends StatefulWidget {
   final ProdukData? produk;
 
-  const ProdukForm({Key? key, this.produk}) : super(key: key);
+  const ProdukForm({super.key, this.produk});
 
   @override
-  _ProdukFormState createState() => _ProdukFormState();
+  State<ProdukForm> createState() => _ProdukFormState();
 }
 
 class _ProdukFormState extends State<ProdukForm> {
@@ -110,9 +111,9 @@ class _ProdukFormState extends State<ProdukForm> {
   }
 
   Widget _buttonSubmit() {
-    return ElevatedButton(
+    return OutlinedButton(
       child: isLoading
-          ? const CircularProgressIndicator(color: Colors.white)
+          ? const CircularProgressIndicator()
           : Text(tombolSubmit),
       onPressed: () {
         var validate = _formkey.currentState!.validate();
@@ -142,25 +143,21 @@ class _ProdukFormState extends State<ProdukForm> {
     );
 
     ProdukBloc.addProduk(produk: createProduk).then((value) {
-      Navigator.pushReplacement(
-        context,
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const ProdukPage()),
+        (route) => false,
       );
-    }).catchError((error) {
+    }, onError: (error) {
+      if (!mounted) return;
       showDialog(
         context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text("Gagal"),
-          content: Text("Terjadi kesalahan: $error"),
-          actions: [
-            TextButton(
-              child: const Text("OK"),
-              onPressed: () => Navigator.pop(context),
-            )
-          ],
+        builder: (BuildContext context) => const WarningDialog(
+          description: "Simpan gagal, silahkan coba lagi",
         ),
       );
     }).whenComplete(() {
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });
@@ -179,25 +176,21 @@ class _ProdukFormState extends State<ProdukForm> {
     );
 
     ProdukBloc.updateProduk(produk: updateProduk).then((value) {
-      Navigator.pushReplacement(
-        context,
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const ProdukPage()),
+        (route) => false,
       );
-    }).catchError((error) {
+    }, onError: (error) {
+      if (!mounted) return;
       showDialog(
         context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text("Gagal"),
-          content: Text("Terjadi kesalahan: $error"),
-          actions: [
-            TextButton(
-              child: const Text("OK"),
-              onPressed: () => Navigator.pop(context),
-            )
-          ],
+        builder: (BuildContext context) => const WarningDialog(
+          description: "Permintaan ubah data gagal, silahkan coba lagi",
         ),
       );
     }).whenComplete(() {
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });

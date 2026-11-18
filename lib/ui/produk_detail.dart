@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import '../blocs/produk_bloc.dart';
-import '../models/produk.model.dart';
-import 'produk_form.dart';
-import 'produk_page.dart';
+import 'package:tokokita/blocs/produk_bloc.dart';
+import 'package:tokokita/models/produk.model.dart';
+import 'package:tokokita/ui/produk_form.dart';
+import 'package:tokokita/ui/produk_page.dart';
+import 'package:tokokita/widget/warning_dialog.dart';
 
 class ProdukDetail extends StatefulWidget {
   final ProdukData? produk;
 
-  const ProdukDetail({Key? key, this.produk}) : super(key: key);
+  const ProdukDetail({super.key, this.produk});
 
   @override
-  _ProdukDetailState createState() => _ProdukDetailState();
+  State<ProdukDetail> createState() => _ProdukDetailState();
 }
 
 class _ProdukDetailState extends State<ProdukDetail> {
@@ -27,17 +28,17 @@ class _ProdukDetailState extends State<ProdukDetail> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "Kode: ${widget.produk!.kodeProduk}",
+                "Kode : ${widget.produk!.kodeProduk}",
                 style: const TextStyle(fontSize: 20.0),
               ),
               const SizedBox(height: 10),
               Text(
-                "Nama: ${widget.produk!.namaProduk}",
+                "Nama : ${widget.produk!.namaProduk}",
                 style: const TextStyle(fontSize: 18.0),
               ),
               const SizedBox(height: 10),
               Text(
-                "Harga: Rp. ${widget.produk!.harga}",
+                "Harga : Rp. ${widget.produk!.harga}",
                 style: const TextStyle(fontSize: 18.0),
               ),
               const SizedBox(height: 30),
@@ -87,22 +88,17 @@ class _ProdukDetailState extends State<ProdukDetail> {
           child: const Text("Ya"),
           onPressed: () {
             ProdukBloc.deleteProduk(id: widget.produk!.id!).then((value) {
+              if (!mounted) return;
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => const ProdukPage()),
                 (route) => false,
               );
-            }).catchError((error) {
+            }, onError: (error) {
+              if (!mounted) return;
               showDialog(
                 context: context,
-                builder: (BuildContext context) => AlertDialog(
-                  title: const Text("Gagal"),
-                  content: Text("Terjadi kesalahan: $error"),
-                  actions: [
-                    TextButton(
-                      child: const Text("OK"),
-                      onPressed: () => Navigator.pop(context),
-                    )
-                  ],
+                builder: (BuildContext context) => const WarningDialog(
+                  description: "Hapus gagal, silahkan coba lagi",
                 ),
               );
             });

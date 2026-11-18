@@ -1,44 +1,51 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
+import 'package:tokokita/helpers/user_info.dart';
+import 'app_exception.dart';
 
 class Api {
   Future<dynamic> post(dynamic url, dynamic data) async {
-    var token = ''; // Nanti bisa diisi token login jika diperlukan
+    var token = await UserInfo().getToken();
     var responseJson;
     try {
       final response = await http.post(
         Uri.parse(url),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.acceptHeader: 'application/json',
-          HttpHeaders.authorizationHeader: 'Bearer $token',
-        },
-        body: jsonEncode(data),
+        body: data,
+        headers: {HttpHeaders.authorizationHeader: "Bearer $token"},
       );
       responseJson = _returnResponse(response);
     } on SocketException {
-      throw FetchDataException('Tidak ada koneksi Internet');
+      throw FetchDataException('No Internet connection');
     }
     return responseJson;
   }
 
   Future<dynamic> get(dynamic url) async {
-    var token = '';
+    var token = await UserInfo().getToken();
     var responseJson;
     try {
       final response = await http.get(
         Uri.parse(url),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.acceptHeader: 'application/json',
-          HttpHeaders.authorizationHeader: 'Bearer $token',
-        },
+        headers: {HttpHeaders.authorizationHeader: "Bearer $token"},
       );
       responseJson = _returnResponse(response);
     } on SocketException {
-      throw FetchDataException('Tidak ada koneksi Internet');
+      throw FetchDataException('No Internet connection');
+    }
+    return responseJson;
+  }
+
+  Future<dynamic> delete(dynamic url) async {
+    var token = await UserInfo().getToken();
+    var responseJson;
+    try {
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {HttpHeaders.authorizationHeader: "Bearer $token"},
+      );
+      responseJson = _returnResponse(response);
+    } on SocketException {
+      throw FetchDataException('No Internet connection');
     }
     return responseJson;
   }
@@ -47,43 +54,18 @@ class Api {
     switch (response.statusCode) {
       case 200:
       case 201:
-        var responseJson = json.decode(response.body.toString());
-        return responseJson;
+        return response;
       case 400:
         throw BadRequestException(response.body.toString());
       case 401:
       case 403:
         throw UnauthorisedException(response.body.toString());
+      case 422:
+        throw InvalidInputException(response.body.toString());
       case 500:
       default:
         throw FetchDataException(
-            'Terjadi kesalahan saat berkomunikasi dengan server dengan StatusCode : ${response.statusCode}');
+            'Error occured while Communication with Server with StatusCode : ${response.statusCode}');
     }
   }
 }
-
-class AppException implements Exception {
-  final _message;
-  final _prefix;
-
-  AppException([this._message, this._prefix]);
-
-  @override
-  String toString() {
-    return "$_prefix$_message";
-  }
-}
-
-class FetchDataException extends AppException {
-  FetchDataException([String? message])
-      : super(message, "Kesalahan Komunikasi: ");
-}
-
-class BadRequestException extends AppException {
-  BadRequestException([String? message]) : super(message, "Permintaan Tidak Valid: ");
-}
-
-class UnauthorisedException extends AppException {
-  UnauthorisedException([String? message]) : super(message, "Tidak Diizinkan: ");
-}
-

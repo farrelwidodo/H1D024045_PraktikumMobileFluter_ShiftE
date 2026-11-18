@@ -1,6 +1,7 @@
-import '../helpers/api.dart';
-import '../helpers/api_url.dart';
-import '../models/registrasi.model.dart';
+import 'dart:convert';
+import 'package:tokokita/helpers/api.dart';
+import 'package:tokokita/helpers/api_url.dart';
+import 'package:tokokita/models/registrasi.model.dart';
 
 class RegistrasiBloc {
   static Future<RegistrasiModel> registrasi({
@@ -15,7 +16,7 @@ class RegistrasiBloc {
       "password": password,
     };
     var response = await Api().post(apiUrl, body);
-    return RegistrasiModel.fromJson(response);
+    var jsonObj = json.decode(response.body);
+    return RegistrasiModel.fromJson(jsonObj);
   }
 }
-

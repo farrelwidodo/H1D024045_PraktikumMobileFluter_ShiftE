@@ -26,10 +26,10 @@ class ProdukData {
 
   factory ProdukData.fromJson(Map<String, dynamic> json) {
     return ProdukData(
-      id: json['id'],
-      kodeProduk: json['kode_produk'],
-      namaProduk: json['nama_produk'],
-      harga: json['harga'],
+      id: json['id']?.toString(),
+      kodeProduk: json['kode_produk']?.toString(),
+      namaProduk: json['nama_produk']?.toString(),
+      harga: json['harga']?.toString(),
     );
   }
 }

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import '../blocs/registrasi_bloc.dart';
+import 'package:tokokita/blocs/registrasi_bloc.dart';
+import 'package:tokokita/widget/success_dialog.dart';
+import 'package:tokokita/widget/warning_dialog.dart';
 import 'login_page.dart';
 
 class RegistrasiPage extends StatefulWidget {
-  const RegistrasiPage({Key? key}) : super(key: key);
+  const RegistrasiPage({super.key});
 
   @override
-  _RegistrasiPageState createState() => _RegistrasiPageState();
+  State<RegistrasiPage> createState() => _RegistrasiPageState();
 }
 
 class _RegistrasiPageState extends State<RegistrasiPage> {
@@ -128,6 +130,7 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
   }
 
   void _submit() {
+    _formkey.currentState!.save();
     setState(() {
       isLoading = true;
     });
@@ -136,45 +139,34 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
       email: _emailTextboxController.text,
       password: _passwordTextboxController.text,
     ).then((value) {
+      if (!mounted) return;
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text("Sukses"),
-          content: const Text("Registrasi berhasil, silakan login"),
-          actions: [
-            TextButton(
-              child: const Text("OK"),
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                );
-              },
-            )
-          ],
+        builder: (BuildContext context) => SuccessDialog(
+          description: "Registrasi berhasil, silahkan login",
+          okClick: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginPage()),
+            );
+          },
         ),
       );
-    }).catchError((error) {
+    }, onError: (error) {
+      if (!mounted) return;
       showDialog(
         context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text("Gagal"),
-          content: Text("Terjadi kesalahan: $error"),
-          actions: [
-            TextButton(
-              child: const Text("OK"),
-              onPressed: () => Navigator.pop(context),
-            )
-          ],
+        barrierDismissible: false,
+        builder: (BuildContext context) => const WarningDialog(
+          description: "Registrasi gagal, silahkan coba lagi",
         ),
       );
     }).whenComplete(() {
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });
     });
   }
 }
-
