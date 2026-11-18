@@ -33,3 +33,8 @@ Aplikasi ini dibuat untuk mempelajari dasar-dasar antarmuka (UI) pada Flutter, m
 1. Jalankan lutter pub get di terminal.
 2. Tentukan halaman yang ingin ditampilkan pada properti home di file [lib/main.dart](lib/main.dart).
 3. Jalankan aplikasi dengan menekan tombol **F5** atau perintah lutter run.
+
+---
+
+## Pertemuan 3
+Aplikasi ini dibuat untuk mempelajari navigasi antar halaman (routes) pada Flutter, meliputi pembuatan halaman login dengan validasi sederhana, penyimpanan username menggunakan local storage (shared_preferences), halaman beranda yang menampilkan username yang tersimpan, serta side menu (Drawer) untuk berpindah ke halaman Home dan About.
